@@ -23,7 +23,8 @@ public class EventDetails extends AppCompatActivity {
     TextView selectedEventName;
     TextView selectedEventDate;
     TextView selectedEventImp;
-    int reminder ;
+    int reminder_id ;
+    public static boolean modifyEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +48,22 @@ public class EventDetails extends AppCompatActivity {
         Intent intent = new Intent(this, EventReminderList.class);
         startActivity(intent);
     }
-    public void updateCurrent(View view){
-        selectedEventName.setText("Stinky");
+    public void modifyCurrent(View view){
+        modifyEvent = true;
+        Intent intent = new Intent(this, EventReminderModify.class);
+        startActivity(intent);
+
     }
     public void deleteCurrent(View view){
 
         if (EventReminderList.standardEnabled){
-             reminder = helper.searchEventPlacement(EventReminderList.standardEventList,EventReminderList.selectedEvent.getNotification_id() );
+            reminder_id = helper.searchEventPlacement(EventReminderList.standardEventList,EventReminderList.selectedEvent.getNotification_id() );
         }
         else{
-             reminder = helper.searchEventPlacement(EventReminderList.dumpEventList,EventReminderList.selectedEvent.getNotification_id());
+            reminder_id = helper.searchEventPlacement(EventReminderList.dumpEventList,EventReminderList.selectedEvent.getNotification_id());
         }
 
-        if (reminder == -1){
+        if (reminder_id == -1){
             Toast.makeText(this,"This event no longer exists!",Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this,EventReminderList.class);
             startActivity(intent);
@@ -75,16 +79,16 @@ public class EventDetails extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
 
                             if (EventReminderList.standardEnabled){
-                                EventReminderList.standardEventList.remove(reminder);
+                                EventReminderList.standardEventList.remove(reminder_id);
 
                             }
                             else {
-                                EventReminderList.dumpEventList.remove(reminder);
+                                EventReminderList.dumpEventList.remove(reminder_id);
                             }
 
                             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                             Intent oldIntent  = new Intent(getApplicationContext(),Notification_receiver.class);
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),reminder,oldIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),reminder_id,oldIntent,PendingIntent.FLAG_UPDATE_CURRENT);
                             alarmManager.cancel(pendingIntent);
 
                             Intent intent = new Intent(EventDetails.this,EventReminderList.class);

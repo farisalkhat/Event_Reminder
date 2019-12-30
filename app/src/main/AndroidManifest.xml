@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EventDetails"></activity>
+        <activity android:name=".EventReminderModify"></activity>
+        <activity android:name=".EventDetails" />
         <activity android:name=".eventreminder_add" />
         <activity android:name=".EventReminderList" />
         <activity android:name=".Settings" />
