@@ -1,5 +1,7 @@
 package com.example.event_reminder.EventReminder;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class helper {
@@ -26,6 +28,17 @@ public class helper {
             }
         }
         return null;
+    }
+
+    public static int searchEventPlacement(ArrayList<EventReminder> eventList, int notification_id) {
+        Log.i("Searching for:",""+notification_id);
+        for (int i = 0; i < eventList.size(); i++) {
+            Log.i("EventReminder ID:","" + eventList.get(i).getNotification_id());
+            if (eventList.get(i).getNotification_id() == notification_id) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 

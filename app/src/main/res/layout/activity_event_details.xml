@@ -73,7 +73,7 @@
         android:layout_marginStart="44dp"
         android:layout_marginLeft="44dp"
         android:layout_marginBottom="24dp"
-        android:onClick="updateCurrent"
+        android:onClick="deleteCurrent"
         android:text="Delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cancelEventButton" />

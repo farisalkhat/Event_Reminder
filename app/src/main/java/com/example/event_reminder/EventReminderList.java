@@ -103,10 +103,13 @@ public class EventReminderList extends AppCompatActivity {
     private void showScene(int pos) {
         Intent intent = new Intent(this, EventDetails.class);
         eventPosition = pos;
-        if(oldEventsButton.isClickable())
+        if(oldEventsButton.isClickable()){
             selectedEvent = standardEventList.get(pos);
-        else
+            standardEnabled = true;}
+
+        else{
             selectedEvent = dumpEventList.get(pos);
+            standardEnabled=false ;}
         Log.i("Event Position:","poopy " + pos);
         startActivity(intent);
     }
