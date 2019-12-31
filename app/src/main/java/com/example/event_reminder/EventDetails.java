@@ -10,11 +10,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.helper;
+
+import java.io.IOException;
 
 public class EventDetails extends AppCompatActivity {
 
@@ -23,6 +26,7 @@ public class EventDetails extends AppCompatActivity {
     TextView selectedEventName;
     TextView selectedEventDate;
     TextView selectedEventImp;
+    Button editEventButton;
     int reminder_id ;
     public static boolean modifyEvent;
 
@@ -40,6 +44,12 @@ public class EventDetails extends AppCompatActivity {
         selectedEventDesc.setText(EventReminderList.selectedEvent.getEventDescription());
         selectedEventDate.setText(EventReminderList.selectedEvent.getEventDate().getTime().toString());
         selectedEventImp.setText(EventReminderList.selectedEvent.getEventImportance());
+
+        if(EventReminderList.standardEnabled==false){
+            editEventButton= findViewById(R.id.editEventButton);
+            editEventButton.setClickable(false);
+            editEventButton.setVisibility(View.INVISIBLE);
+        }
 
 
     }
@@ -81,15 +91,29 @@ public class EventDetails extends AppCompatActivity {
                             if (EventReminderList.standardEnabled){
                                 EventReminderList.standardEventList.remove(reminder_id);
 
+                                try {
+                                    Context context = getApplicationContext();
+                                    helper.saveStandardEvents(context);
+                                }
+                                catch(IOException ex){
+                                    System.out.println("IOException is caught: Failure to save replays");
+                                }
+
+                                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                                Intent oldIntent  = new Intent(getApplicationContext(),Notification_receiver.class);
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),reminder_id,oldIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                                alarmManager.cancel(pendingIntent);
                             }
                             else {
                                 EventReminderList.dumpEventList.remove(reminder_id);
+                                try {
+                                    Context context = getApplicationContext();
+                                    helper.saveDumpEvents(context);
+                                }
+                                catch(IOException ex){
+                                    System.out.println("IOException is caught: Failure to save replays");
+                                }
                             }
-
-                            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                            Intent oldIntent  = new Intent(getApplicationContext(),Notification_receiver.class);
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),reminder_id,oldIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-                            alarmManager.cancel(pendingIntent);
 
                             Intent intent = new Intent(EventDetails.this,EventReminderList.class);
                             startActivity(intent);

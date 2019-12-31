@@ -12,6 +12,11 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.Repeating_activity;
+import com.example.event_reminder.EventReminder.helper;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 
 public class Notification_receiver extends BroadcastReceiver {
@@ -19,14 +24,9 @@ public class Notification_receiver extends BroadcastReceiver {
     public static int activated_id;
 
 
-
-
-
-
-
     @Override
     public void onReceive(Context context,Intent intent){
-        //
+        //TODO: Implement receiver for important events as well.
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -46,12 +46,21 @@ public class Notification_receiver extends BroadcastReceiver {
                     .setAutoCancel(true);
 
 
-
             notificationManager.notify(EventReminderList.standardEventList.get(0).getNotification_id(),builder.build());
 
             EventReminder poopy = EventReminderList.standardEventList.get(0);
             EventReminderList.standardEventList.remove(0);
             EventReminderList.dumpEventList.add(poopy);
+
+            try {
+                helper.saveStandardEvents(context);
+                helper.saveDumpEvents(context);
+                System.out.println("Saved dump event");
+            }
+            catch(IOException ex){
+                System.out.println("IOException is caught: Failure to save replays");
+            }
+
             EventReminderList.EventReminderList.invalidate();
         }catch (Exception e){
             Log.i("IndexOutOfBounds","There is nothing in standardEventList.");

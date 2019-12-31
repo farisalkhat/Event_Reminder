@@ -3,6 +3,12 @@
     package="com.example.event_reminder">
 
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+
+
+
+
 
     <application
         android:allowBackup="true"
@@ -11,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".EventReminderModify"></activity>
         <activity android:name=".EventDetails" />
         <activity android:name=".eventreminder_add" />
@@ -28,7 +35,18 @@
         </activity>
         <activity android:name=".EventReminder.Repeating_activity" />
 
-        <receiver android:name=".Notification_receiver" />
+
+
+        <receiver
+            android:name=".Notification_receiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

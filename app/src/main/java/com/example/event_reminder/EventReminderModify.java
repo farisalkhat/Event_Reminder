@@ -22,6 +22,9 @@ import android.widget.ToggleButton;
 import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.helper;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Calendar;
 
 public class EventReminderModify extends AppCompatActivity {
@@ -136,6 +139,15 @@ public class EventReminderModify extends AppCompatActivity {
                 int reminderPlacement = helper.searchEventPlacement(EventReminderList.importantEventList,modifyEvent.getNotification_id());
                 EventReminderList.importantEventList.remove(reminderPlacement);
                 EventReminderList.importantEventList.add(Reminder);
+                helper.sortEvents(EventReminderList.importantEventList);
+                try {
+                    Context context = getApplicationContext();
+                    helper.saveImportantEvents(context);
+                }
+                catch(IOException ex){
+                    System.out.println("IOException is caught: Failure to save replays");
+                }
+
             }
             else{
                 Reminder = new EventReminder(modifyEventTitle.getText().toString(),modifyEventDesc.getText().toString(),
@@ -143,6 +155,15 @@ public class EventReminderModify extends AppCompatActivity {
                 int reminderPlacement = helper.searchEventPlacement(EventReminderList.standardEventList,modifyEvent.getNotification_id());
                 EventReminderList.standardEventList.remove(reminderPlacement);
                 EventReminderList.standardEventList.add(Reminder);
+                helper.sortEvents(EventReminderList.standardEventList);
+                try {
+                    Context context = getApplicationContext();
+                    helper.saveStandardEvents(context);
+                }
+                catch(IOException ex){
+                    System.out.println("IOException is caught: Failure to save replays");
+                }
+
             }
 
             //Remove old reminder
@@ -158,7 +179,6 @@ public class EventReminderModify extends AppCompatActivity {
             alarmManager.set(AlarmManager.RTC_WAKEUP,date.getTimeInMillis(),pendingIntent);
 
             //Sort list after modifying it.
-            helper.sortEvents(EventReminderList.standardEventList);
             Intent poop = new Intent(this, EventReminderList.class);
             EventDetails.modifyEvent = false;
             Reminder = null;

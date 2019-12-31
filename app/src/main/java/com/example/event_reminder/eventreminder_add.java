@@ -7,6 +7,7 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +27,9 @@ import com.example.event_reminder.EventReminder.EventCategory;
 import com.example.event_reminder.EventReminder.EventImportance;
 import com.example.event_reminder.EventReminder.helper;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -126,14 +130,31 @@ public class eventreminder_add extends AppCompatActivity {
                 Reminder = new EventReminder(eventTitle.getText().toString(),eventDescription.getText().toString(),
                         date,earlyDate,"IMPORTANT","CURRENT",notification_id);
                 EventReminderList.importantEventList.add(Reminder);
-                //Log.i("importantEventList:",EventReminderList.importantEventList.get(0).getEventName());
+                try {
+                    Context context = getApplicationContext();
+                    helper.saveImportantEvents(context);
+                }
+                catch(IOException ex) {
+                    System.out.println("IOException is caught: Failure to save replays");
+                }
             }
             else{
                 Reminder = new EventReminder(eventTitle.getText().toString(),eventDescription.getText().toString(),
                         date,earlyDate,"STANDARD","CURRENT",notification_id);
-
                 EventReminderList.standardEventList.add(Reminder);
-                //Log.i("standardEventList:",EventReminderList.standardEventList.get(0).getEventName());
+                try {
+                    Context context = getApplicationContext();
+                    helper.saveStandardEvents(context);
+                    System.out.println("Saved successfully.");
+                }
+                catch(IOException ex){
+                    System.out.println("IOException is caught: Failure to save replays");
+                }
+
+
+
+
+
             }
 
             //Log.i("new date:", Reminder.getEventDate().getTime().toString());

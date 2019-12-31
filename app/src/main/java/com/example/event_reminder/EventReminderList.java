@@ -2,6 +2,7 @@ package com.example.event_reminder;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.EventLog;
@@ -16,7 +17,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.event_reminder.EventReminder.EventReminder;
+import com.example.event_reminder.EventReminder.helper;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -38,11 +46,44 @@ public class EventReminderList extends AppCompatActivity {
 
 
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            Context context = getApplicationContext();
+            helper.loadStandardEvents(context);
+        }
+        catch(IOException ex){
+            Log.i("IOException:","Failure to load events");
+        }
+        catch(ClassNotFoundException ex) {
+            Log.i("ClassNotFoundException:","Failure to load events");
+        }
+        try {
+            Context context = getApplicationContext();
+            helper.loadImportantEvents(context);
+        }
+        catch(IOException ex){
+            Log.i("IOException:","Failure to load events");
+        }
+        catch(ClassNotFoundException ex) {
+            Log.i("ClassNotFoundException:","Failure to load events");
+        }
+        try {
+            Context context = getApplicationContext();
+            helper.loadDumpEvents(context);
+
+        }
+        catch(IOException ex){
+            Log.i("IOException:","Failure to load events");
+        }
+        catch(ClassNotFoundException ex) {
+            Log.i("ClassNotFoundException:","Failure to load events");
+        }
+
+
+
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_reminder_list);
         EventReminderList = getWindow().getDecorView().findViewById(android.R.id.content);
@@ -61,12 +102,9 @@ public class EventReminderList extends AppCompatActivity {
             }
         });
 
+
+
     }
-
-
-
-
-
     public void addEventReminder(View view) {
         Intent intent = new Intent(this, eventreminder_add.class);
         startActivity(intent);
@@ -82,7 +120,6 @@ public class EventReminderList extends AppCompatActivity {
         eventListView.setAdapter(standardEventAdapter);
 
     }
-
     public void showOldEvents(View view){
         oldEventsButton.setVisibility(View.INVISIBLE);
         oldEventsButton.setClickable(false);
@@ -97,9 +134,6 @@ public class EventReminderList extends AppCompatActivity {
         EventReminderList.invalidate();
 
     }
-
-
-
     private void showScene(int pos) {
         Intent intent = new Intent(this, EventDetails.class);
         eventPosition = pos;

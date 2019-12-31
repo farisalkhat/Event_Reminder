@@ -1,10 +1,13 @@
 package com.example.event_reminder.EventReminder;
 
 
+import android.app.PendingIntent;
+
+import java.io.Serializable;
 import java.time.*;
 import java.util.Calendar;
 
-public class EventReminder {
+public class EventReminder implements Serializable {
     String eventName;
     String eventDescription;
     Calendar eventCalendar;
@@ -12,9 +15,9 @@ public class EventReminder {
 
     String eventImportance;
     String eventCategory;
+    PendingIntent pendingIntent;
 
-    EventReminder next;
-    EventReminder prev;
+
 
     int notification_id;
 
@@ -23,7 +26,7 @@ public class EventReminder {
     public EventReminder(String eventName, String eventDescription,
                          Calendar eventCalendar, Calendar earlyBirdTime,
                          String eventImportance, String eventCategory, int notification_id) {
-
+        super();
         this.eventName = eventName;
         this.eventDescription = eventDescription;
         this.eventCalendar = eventCalendar;
@@ -32,15 +35,9 @@ public class EventReminder {
         this.eventCategory = eventCategory;
         this.notification_id = notification_id;
 
-        this.next = null;
-        this.prev = null;
-
-
-
     }
 
-    public EventReminder getNext(){return next;}
-    public void setNext(EventReminder next){this.next = next;}
+
     public String getEventName(){
         return eventName;
     }
