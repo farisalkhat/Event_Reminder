@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -91,13 +92,7 @@ public class EventDetails extends AppCompatActivity {
                             if (EventReminderList.standardEnabled){
                                 EventReminderList.standardEventList.remove(reminder_id);
 
-                                try {
-                                    Context context = getApplicationContext();
-                                    helper.saveStandardEvents(context);
-                                }
-                                catch(IOException ex){
-                                    System.out.println("IOException is caught: Failure to save replays");
-                                }
+                                SharedPreferencesManager.saveStandardEventList(getApplicationContext());
 
                                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                                 Intent oldIntent  = new Intent(getApplicationContext(),Notification_receiver.class);
@@ -106,13 +101,7 @@ public class EventDetails extends AppCompatActivity {
                             }
                             else {
                                 EventReminderList.dumpEventList.remove(reminder_id);
-                                try {
-                                    Context context = getApplicationContext();
-                                    helper.saveDumpEvents(context);
-                                }
-                                catch(IOException ex){
-                                    System.out.println("IOException is caught: Failure to save replays");
-                                }
+                                SharedPreferencesManager.saveDumpEventList(getApplicationContext());
                             }
 
                             Intent intent = new Intent(EventDetails.this,EventReminderList.class);

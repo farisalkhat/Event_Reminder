@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +27,10 @@ import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.EventCategory;
 import com.example.event_reminder.EventReminder.EventImportance;
 import com.example.event_reminder.EventReminder.helper;
+import com.example.event_reminder.practice.App;
+import com.example.event_reminder.practice.ExampleIntentService;
+import com.example.event_reminder.practice.MyService;
+import com.google.gson.Gson;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -130,37 +135,26 @@ public class eventreminder_add extends AppCompatActivity {
                 Reminder = new EventReminder(eventTitle.getText().toString(),eventDescription.getText().toString(),
                         date,earlyDate,"IMPORTANT","CURRENT",notification_id);
                 EventReminderList.importantEventList.add(Reminder);
-                try {
-                    Context context = getApplicationContext();
-                    helper.saveImportantEvents(context);
-                }
-                catch(IOException ex) {
-                    System.out.println("IOException is caught: Failure to save replays");
-                }
+                helper.sortEvents(EventReminderList.importantEventList);
+                SharedPreferencesManager.saveImportantEventList(getApplicationContext());
+
             }
             else{
                 Reminder = new EventReminder(eventTitle.getText().toString(),eventDescription.getText().toString(),
                         date,earlyDate,"STANDARD","CURRENT",notification_id);
                 EventReminderList.standardEventList.add(Reminder);
-                try {
-                    Context context = getApplicationContext();
-                    helper.saveStandardEvents(context);
-                    System.out.println("Saved successfully.");
-                }
-                catch(IOException ex){
-                    System.out.println("IOException is caught: Failure to save replays");
-                }
-
-
-
-
+                helper.sortEvents(EventReminderList.standardEventList);
+                SharedPreferencesManager.saveStandardEventList(getApplicationContext());
 
             }
 
-            //Log.i("new date:", Reminder.getEventDate().getTime().toString());
-            //Log.i("new early date:", Reminder.getEarlyBirdTime().getTime().toString());
+
+
+
 
             Intent intent  = new Intent(getApplicationContext(),Notification_receiver.class);
+            //Intent intent = new Intent(this, ExampleIntentService.class);
+
             intent.putExtra("NOTIFICATION_ID",notification_id);
             //This intent is attached to our notification_receiver class, which will create the notification when the intent is called.
             PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),notification_id,intent,PendingIntent.FLAG_UPDATE_CURRENT);
@@ -173,7 +167,7 @@ public class eventreminder_add extends AppCompatActivity {
             //Lastly, we set what time we want the alarm to be
 
 
-            helper.sortEvents(EventReminderList.standardEventList);
+
             Intent poop = new Intent(this, EventReminderList.class);
             startActivity(poop);
         }

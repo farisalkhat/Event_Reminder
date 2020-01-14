@@ -2,8 +2,11 @@ package com.example.event_reminder;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.EventLog;
 import android.util.Log;
@@ -18,6 +21,8 @@ import android.widget.TextView;
 
 import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.helper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,6 +30,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -35,51 +41,30 @@ public class EventReminderList extends AppCompatActivity {
     private Button currentEventsButton;
     String[] menuItems = {};
     SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
-    public static ArrayList<EventReminder> standardEventList = new ArrayList<EventReminder>();
-    public static ArrayList<EventReminder> importantEventList = new ArrayList<EventReminder>();
-    public static ArrayList<EventReminder> dumpEventList = new ArrayList<EventReminder>();
+    public static ArrayList<EventReminder> standardEventList = new ArrayList<>();
+    public static ArrayList<EventReminder> importantEventList = new ArrayList<>();
+    public static ArrayList<EventReminder> dumpEventList = new ArrayList<>();
     public static EventReminder selectedEventReminder;
     public static ViewGroup EventReminderList;
     public static int eventPosition;
     public static boolean standardEnabled;
     public static EventReminder selectedEvent;
 
-
+    public static String tester = "poopy";
+    public static SharedPreferences mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-            Context context = getApplicationContext();
-            helper.loadStandardEvents(context);
-        }
-        catch(IOException ex){
-            Log.i("IOException:","Failure to load events");
-        }
-        catch(ClassNotFoundException ex) {
-            Log.i("ClassNotFoundException:","Failure to load events");
-        }
-        try {
-            Context context = getApplicationContext();
-            helper.loadImportantEvents(context);
-        }
-        catch(IOException ex){
-            Log.i("IOException:","Failure to load events");
-        }
-        catch(ClassNotFoundException ex) {
-            Log.i("ClassNotFoundException:","Failure to load events");
-        }
-        try {
-            Context context = getApplicationContext();
-            helper.loadDumpEvents(context);
 
-        }
-        catch(IOException ex){
-            Log.i("IOException:","Failure to load events");
-        }
-        catch(ClassNotFoundException ex) {
-            Log.i("ClassNotFoundException:","Failure to load events");
-        }
+        SharedPreferencesManager.loadStandardEventList(getApplicationContext());
+        SharedPreferencesManager.loadDumpEventList(getApplicationContext());
+        SharedPreferencesManager.loadImportantEventList(getApplicationContext());
 
+        ComponentName receiver = new ComponentName(this,Notification_receiver.class);
+        PackageManager pm = this.getPackageManager();
+        pm.setComponentEnabledSetting(receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
 
 
 
@@ -105,6 +90,29 @@ public class EventReminderList extends AppCompatActivity {
 
 
     }
+
+
+
+
+
+    public void loadStandardEvents(){
+        SharedPreferences preferences= getApplicationContext().getSharedPreferences("shared preferences",MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString("standardEventList", null);
+
+        Type type = new TypeToken<ArrayList<EventReminder>>() {}.getType();
+        standardEventList = gson.fromJson(json, type);
+        if(standardEventList==null){
+            standardEventList = new ArrayList<>();
+            Log.i("standard","List was empty, so created new one");
+        }
+    }
+
+
+
+
+
+
     public void addEventReminder(View view) {
         Intent intent = new Intent(this, eventreminder_add.class);
         startActivity(intent);

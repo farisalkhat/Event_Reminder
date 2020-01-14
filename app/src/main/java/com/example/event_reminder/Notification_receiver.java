@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -17,25 +18,36 @@ import com.example.event_reminder.EventReminder.helper;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class Notification_receiver extends BroadcastReceiver {
 
     public static int activated_id;
+    public static String title;
+
 
 
     @Override
     public void onReceive(Context context,Intent intent){
         //TODO: Implement receiver for important events as well.
+        SharedPreferencesManager.loadStandardEventList(context);
+        String title = EventReminderList.standardEventList.get(0).getEventName();
+        String description = EventReminderList.standardEventList.get(0).getEventDescription();
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent repeating_intent = new Intent(context,Repeating_activity.class);
         repeating_intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        try{
-            repeating_intent.putExtra("NOTIFICATION_ID",EventReminderList.standardEventList.get(0).getNotification_id());
-            PendingIntent pendingIntent = PendingIntent.getActivity(context,100,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
+
+
+
+        try{
+            repeating_intent.putExtra("NOTIFICATION_ID",1);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context,100,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
@@ -52,16 +64,11 @@ public class Notification_receiver extends BroadcastReceiver {
             EventReminderList.standardEventList.remove(0);
             EventReminderList.dumpEventList.add(poopy);
 
-            try {
-                helper.saveStandardEvents(context);
-                helper.saveDumpEvents(context);
-                System.out.println("Saved dump event");
-            }
-            catch(IOException ex){
-                System.out.println("IOException is caught: Failure to save replays");
-            }
-
+            SharedPreferencesManager.saveStandardEventList(context);
+            SharedPreferencesManager.saveDumpEventList(context);
+            
             EventReminderList.EventReminderList.invalidate();
+
         }catch (Exception e){
             Log.i("IndexOutOfBounds","There is nothing in standardEventList.");
         }
