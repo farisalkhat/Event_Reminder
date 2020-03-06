@@ -11,7 +11,7 @@
 
 
     <application
-        android:name=".practice.App"
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -37,7 +37,7 @@
         <activity android:name=".EventReminder.Repeating_activity" />
 
 
-        <service android:name=".practice.MyService"/>
+
         <receiver
             android:name=".Notification_receiver"
             android:enabled="true"

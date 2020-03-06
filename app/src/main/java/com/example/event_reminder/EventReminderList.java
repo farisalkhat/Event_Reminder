@@ -1,7 +1,11 @@
 package com.example.event_reminder;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +40,12 @@ import java.util.ArrayList;
 
 public class EventReminderList extends AppCompatActivity {
     private ListView eventListView;
+
+    private RecyclerView mRecyclerView;
+    public static EventAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+
     private ListView importantListView;
     private Button oldEventsButton;
     private Button currentEventsButton;
@@ -56,9 +66,14 @@ public class EventReminderList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
+
         SharedPreferencesManager.loadStandardEventList(getApplicationContext());
         SharedPreferencesManager.loadDumpEventList(getApplicationContext());
         SharedPreferencesManager.loadImportantEventList(getApplicationContext());
+
+
+
 
         ComponentName receiver = new ComponentName(this,Notification_receiver.class);
         PackageManager pm = this.getPackageManager();
@@ -66,31 +81,37 @@ public class EventReminderList extends AppCompatActivity {
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                 PackageManager.DONT_KILL_APP);
 
-
-
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event_reminder_list);
-        EventReminderList = getWindow().getDecorView().findViewById(android.R.id.content);
 
-        eventListView = findViewById(R.id.eventListView);
+
+        setContentView(R.layout.activity_event_reminder_list);
+
         oldEventsButton = findViewById(R.id.oldEventsButton);
         currentEventsButton = findViewById(R.id.currentEventsButton);
 
-        standardEventAdapter standardEventAdapter = new standardEventAdapter();
-        eventListView.setAdapter(standardEventAdapter);
+        mRecyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mAdapter = new EventAdapter(standardEventList);
 
-        eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                showScene(position);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnItemClickListener(new EventAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                setSelectedEvent(position);
+                showScene();
+            }
+
+            @Override
+            public void onDeleteClick(int position) {
+                setSelectedEvent(position);
+                deleteEvent();
+                mAdapter.notifyItemChanged(position);
             }
         });
-
-
-
     }
-
 
 
 
@@ -124,8 +145,29 @@ public class EventReminderList extends AppCompatActivity {
         currentEventsButton.setVisibility(View.INVISIBLE);
         currentEventsButton.setClickable(false);
 
-        standardEventAdapter standardEventAdapter = new standardEventAdapter();
-        eventListView.setAdapter(standardEventAdapter);
+        mRecyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mAdapter = new EventAdapter(standardEventList);
+
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnItemClickListener(new EventAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                setSelectedEvent(position);
+                showScene();
+            }
+
+            @Override
+            public void onDeleteClick(int position) {
+                setSelectedEvent(position);
+                deleteEvent();
+                mAdapter.notifyItemChanged(position);
+            }
+        });
+
 
     }
     public void showOldEvents(View view){
@@ -135,15 +177,36 @@ public class EventReminderList extends AppCompatActivity {
         currentEventsButton.setVisibility(View.VISIBLE);
         currentEventsButton.setClickable(true);
 
-        dumpEventAdapter dumpEventAdapter = new dumpEventAdapter();
-        eventListView.setAdapter(dumpEventAdapter);
+        mAdapter = new EventAdapter(dumpEventList);
+        mRecyclerView.setAdapter(mAdapter);
 
 
-        EventReminderList.invalidate();
+        mAdapter.setOnItemClickListener(new EventAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                setSelectedEvent(position);
+                showScene();
+            }
+
+            @Override
+            public void onDeleteClick(int position) {
+                setSelectedEvent(position);
+                deleteEvent();
+                mAdapter.notifyItemChanged(position);
+
+
+
+            }
+        });
+
+
+
+
+        //EventReminderList.invalidate();
 
     }
-    private void showScene(int pos) {
-        Intent intent = new Intent(this, EventDetails.class);
+
+    private void setSelectedEvent(int pos){
         eventPosition = pos;
         if(oldEventsButton.isClickable()){
             selectedEvent = standardEventList.get(pos);
@@ -153,8 +216,39 @@ public class EventReminderList extends AppCompatActivity {
             selectedEvent = dumpEventList.get(pos);
             standardEnabled=false ;}
         Log.i("Event Position:","poopy " + pos);
+    }
+
+
+    private void showScene() {
+        Intent intent = new Intent(this, EventDetails.class);
         startActivity(intent);
     }
+
+    private void deleteEvent(){
+        int reminder_id = helper.searchEventPlacement(standardEventList,selectedEvent.getNotification_id() );
+
+        if (standardEnabled){
+            standardEventList.remove(reminder_id);
+
+            SharedPreferencesManager.saveStandardEventList(getApplicationContext());
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent oldIntent  = new Intent(getApplicationContext(),Notification_receiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),reminder_id,oldIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.cancel(pendingIntent);
+        }
+        else {
+            dumpEventList.remove(reminder_id);
+            SharedPreferencesManager.saveDumpEventList(getApplicationContext());
+        }
+
+
+    }
+
+
+
+
+
 
     class dumpEventAdapter extends BaseAdapter {
 
@@ -177,13 +271,12 @@ public class EventReminderList extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
 
             view = getLayoutInflater().inflate(R.layout.eventreminder_textview, null);
-            TextView titleView = view.findViewById(R.id.titleView);
-            TextView dateView = view.findViewById(R.id.dateView);
-            titleView.setText(dumpEventList.get(i).getEventName());
-
-
-
-            dateView.setText(format.format(dumpEventList.get(i).getEventDate().getTime()));
+            TextView titleView = view.findViewById(R.id.poopView);
+            TextView dateView = view.findViewById(R.id.poop2view);
+            if(dumpEventList.size()>0) {
+                titleView.setText(dumpEventList.get(i).getEventName());
+                dateView.setText(format.format(dumpEventList.get(i).getEventDate().getTime()));
+            }
             return view;
         }
 
@@ -209,13 +302,12 @@ public class EventReminderList extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
 
             view = getLayoutInflater().inflate(R.layout.eventreminder_textview, null);
-            TextView titleView = view.findViewById(R.id.titleView);
-            TextView dateView = view.findViewById(R.id.dateView);
-            titleView.setText(standardEventList.get(i).getEventName());
-
-
-
-            dateView.setText(format.format(standardEventList.get(i).getEventDate().getTime()));
+            TextView titleView = view.findViewById(R.id.poopView);
+            TextView dateView = view.findViewById(R.id.poop2view);
+            if(standardEventList.size()>0) {
+                titleView.setText(standardEventList.get(i).getEventName());
+                dateView.setText(format.format(standardEventList.get(i).getEventDate().getTime()));
+            }
             return view;
         }
 

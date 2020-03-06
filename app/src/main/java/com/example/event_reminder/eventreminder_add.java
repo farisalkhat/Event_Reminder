@@ -27,9 +27,6 @@ import com.example.event_reminder.EventReminder.EventReminder;
 import com.example.event_reminder.EventReminder.EventCategory;
 import com.example.event_reminder.EventReminder.EventImportance;
 import com.example.event_reminder.EventReminder.helper;
-import com.example.event_reminder.practice.App;
-import com.example.event_reminder.practice.ExampleIntentService;
-import com.example.event_reminder.practice.MyService;
 import com.google.gson.Gson;
 
 import java.io.FileOutputStream;

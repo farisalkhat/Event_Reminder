@@ -33,17 +33,19 @@
         app:layout_constraintHorizontal_bias="0.539"
         app:layout_constraintStart_toEndOf="@+id/optionsButton" />
 
-    <ListView
-        android:id="@+id/eventListView"
-        android:layout_width="413dp"
-        android:layout_height="530dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.126">
 
-    </ListView>
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="4dp"
+        android:scrollbars ="vertical"
+        android:background="@android:color/darker_gray">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
     <Button
         android:id="@+id/optionsButton"
